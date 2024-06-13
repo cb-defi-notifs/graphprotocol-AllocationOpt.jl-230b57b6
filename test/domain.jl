@@ -11,14 +11,12 @@
             n = flextable([
                 Dict(
                     "id" => 1,
-                    "totalSupply" => 1,
-                    "networkGRTIssuance" => 1,
+                    "networkGRTIssuancePerBlock" => 1,
                     "epochLength" => 28,
                     "totalTokensSignalled" => 2,
                     "currentEpoch" => 1,
                 ),
             ])
-            @test AllocationOpt.totalsupply(Val(:network), n) == 1
             @test AllocationOpt.blockissuance(Val(:network), n) == 1
             @test AllocationOpt.blocksperepoch(Val(:network), n) == 28
             @test AllocationOpt.signal(Val(:network), n) == 2
@@ -40,7 +38,12 @@
 
         @testset "subgraph" begin
             x = flextable([
-                Dict("stakedTokens" => 1, "ipfsHash" => "Qma", "signalledTokens" => 2, "deniedAt" => 0)
+                Dict(
+                    "stakedTokens" => 1,
+                    "ipfsHash" => "Qma",
+                    "signalledTokens" => 2,
+                    "deniedAt" => 0,
+                ),
             ])
             @test AllocationOpt.ipfshash(Val(:subgraph), x) == ["Qma"]
             @test AllocationOpt.stake(Val(:subgraph), x) == [1]
@@ -201,8 +204,7 @@
         n = flextable([
             Dict(
                 "id" => 1,
-                "totalSupply" => 1,
-                "networkGRTIssuance" => 1,
+                "networkGRTIssuancePerBlock" => 1,
                 "epochLength" => 1,
                 "totalTokensSignalled" => 2,
                 "currentEpoch" => 1,
@@ -214,8 +216,7 @@
         n = flextable([
             Dict(
                 "id" => 1,
-                "totalSupply" => 1,
-                "networkGRTIssuance" => 1,
+                "networkGRTIssuancePerBlock" => 1,
                 "epochLength" => 0,
                 "totalTokensSignalled" => 2,
                 "currentEpoch" => 1,
@@ -227,8 +228,7 @@
         n = flextable([
             Dict(
                 "id" => 1,
-                "totalSupply" => 0,
-                "networkGRTIssuance" => 1,
+                "networkGRTIssuancePerBlock" => 0,
                 "epochLength" => 1,
                 "totalTokensSignalled" => 2,
                 "currentEpoch" => 1,
@@ -240,8 +240,7 @@
         n = flextable([
             Dict(
                 "id" => 1,
-                "totalSupply" => 1,
-                "networkGRTIssuance" => 2,
+                "networkGRTIssuancePerBlock" => 1,
                 "epochLength" => 1,
                 "totalTokensSignalled" => 2,
                 "currentEpoch" => 1,

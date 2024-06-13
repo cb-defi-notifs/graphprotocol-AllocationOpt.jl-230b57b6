@@ -2,7 +2,7 @@
 # SPDX-Licen se-Identifier: MIT
 
 """
-    squery()
+    squery(config::AbstractDict)
 
 Return the components of a GraphQL query for subgraphs.
 
@@ -10,16 +10,21 @@ For use with the TheGraphData.jl package.
 
 ```julia
 julia> using AllocationOpt
-julia> value, args, fields = AllocationOpt.squery()
+julia> config = Dict("syncing_networking" => ["mainnet"])
+julia> value, args, fields = AllocationOpt.squery(config)
 ("subgraphDeployments", Dict{String, Union{Dict{String, String}, String}}(), ["ipfsHash", "signalledTokens", "stakedTokens"])
 ```
 
 # Extended Help
 You can find TheGraphData.jl at https://github.com/semiotic-ai/TheGraphData.jl
 """
-function squery()
+function squery(config::AbstractDict)
     v = "subgraphDeployments"
-    a = Dict{String,Union{Dict{String,String},String}}()
+    a = Dict{String,Any}(
+        "where" => Dict{String,Any}(
+            "manifest_" => Dict{String,Any}("network_in" => config["syncing_networks"])
+        ),
+    )
     f = ["ipfsHash", "signalledTokens", "stakedTokens", "deniedAt"]
     return v, a, f
 end
@@ -84,7 +89,7 @@ For use with the TheGraphData.jl package.
 ```julia
 julia> using AllocationOpt
 julia> value, args, fields = AllocationOpt.nquery()
-("graphNetwork", Dict("id" => 1), ["id", "totalSupply", "networkGRTIssuance", "epochLength", "totalTokensSignalled", "currentEpoch"])
+("graphNetwork", Dict("id" => 1), ["id", "networkGRTIssuance", "epochLength", "totalTokensSignalled", "currentEpoch"])
 ```
 
 # Extended Help
@@ -95,8 +100,7 @@ function nquery()
     a = Dict("id" => 1)
     f = [
         "id",
-        "totalSupply",
-        "networkGRTIssuance",
+        "networkGRTIssuancePerBlock",
         "epochLength",
         "totalTokensSignalled",
         "currentEpoch",
@@ -169,8 +173,19 @@ function read(::Nothing, config::AbstractDict{String,Any})
     client!(url)
     config["verbose"] && @info "Querying data from $url"
     i = flextable(@mock(query(iquery(config["id"])...)))
-    a = flextable(flatten.(@mock(paginated_query(aquery(config["id"])...))))
-    s = flextable(@mock(paginated_query(squery()...)))
+    d = flatten.(@mock(paginated_query(aquery(config["id"])...)))
+    a = if isempty(d)
+        FlexTable(
+            Dict(
+                key => String[] for
+                key in ["subgraphDeployment.ipfsHash", "allocatedTokens", "id"]
+            ),
+        )
+    else
+        flextable(d)
+    end
+
+    s = flextable(@mock(paginated_query(squery(config)...)))
     n = flextable(@mock(query(nquery()...)))
 
     # Convert string types to GRT
@@ -336,8 +351,7 @@ julia> using TheGraphData
 julia> n = flextable([
     Dict(
         "id" => 1,
-        "totalSupply" => "1",
-        "networkGRTIssuance" => "1",
+        "networkGRTIssuancePerBlock" => "1",
         "epochLength" => 28,
         "totalTokensSignalled" => "2",
         "currentEpoch" => 1,
@@ -345,15 +359,14 @@ julia> n = flextable([
 ])
 julia> AllocationOpt.correcttypes!(Val(:network), n)
 FlexTable with 6 columns and 1 row:
-     totalTokensSignalled  currentEpoch  totalSupply  id  networkGRTIssuance  epochLength
-   ┌─────────────────────────────────────────────────────────────────────────────────────
- 1 │ 2.0e-18               1             1.0e-18      1   1.0e-18             28
+    totalTokensSignalled  currentEpoch  id  networkGRTIssuancePerBlock  epochLength
+┌────────────────────────────────────────────────────────────────────────────────
+1 │ 2.0e-18               1             1   1.0e-18                     28
 ```
 """
 function correcttypes!(::Val{:network}, n::FlexTable)
-    n.totalSupply = n.totalSupply .|> togrt
     n.totalTokensSignalled = n.totalTokensSignalled .|> togrt
-    n.networkGRTIssuance = n.networkGRTIssuance .|> togrt
+    n.networkGRTIssuancePerBlock = n.networkGRTIssuancePerBlock .|> togrt
     return n
 end
 
@@ -389,8 +402,7 @@ julia> a = flextable([
 julia> n = flextable([
     Dict(
         "id" => 1,
-        "totalSupply" => "1",
-        "networkGRTIssuance" => "1",
+        "networkGRTIssuancePerBlock" => "1",
         "epochLength" => 28,
         "totalTokensSignalled" => "2",
         "currentEpoch" => 1,
@@ -436,6 +448,10 @@ function subtractindexer!(a::FlexTable, s::FlexTable)
     a = sort(a; by=getproperty(Symbol("subgraphDeployment.ipfsHash")))
 
     na = length(a)
+    # Return early if there's no allocations
+    if isempty(a)
+        return a, s
+    end
 
     # Preallocate vector of staked tokens on subgraphs
     ts = stake(Val(:subgraph), s)

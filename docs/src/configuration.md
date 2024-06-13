@@ -18,11 +18,13 @@ frozenlist = []
 pinnedlist = []
 allocation_lifetime = 28
 gas = 100
-min_signal = 1000
+min_signal = 100
 verbose = true
 num_reported_options = 2
 execution_mode = "none"
 opt_mode = "fast"
+protocol_network = "mainnet"
+syncing_networks = ["mainnet"]
 ```
 
 
@@ -57,7 +59,7 @@ opt_mode = "fast"
     the optimiser finds to be open. If unspecified, `28`
 - `gas::Real`: The estimated gas cost in GRT to open/close allocations. If unspecified, `100`
 - `min_signal::Real`: The minimum amount of signal in GRT that must be on a subgraph
-    in order for you to consider allocating to it. If unspecified, `1000`
+    in order for you to consider allocating to it. If unspecified, `100`
 - `max_allocations::Integer`: The maximum number of new allocations you'd like the optimiser
     to consider opening. If unspecified, `10`
 - `num_reported_options::Integer`: The number of proposed allocation strategies to report.
@@ -73,11 +75,18 @@ opt_mode = "fast"
     to execute the allocation strategies on. If you specify `"actionqueue"`, you must also
     specify `indexer_url`. If unspecified, `nothing`
 - `opt_mode::String`: We support two optimisation modes. One is `"fast"`. This mode is
-    fast, but may not find the optimal allocation. This mode is also used to the top
+    fast, but may not find the optimal strategy. This mode is also used to the top
     `num_reported_options` allocation strategies. The other mode is `"optimal"`. This
-    mode is slower, but will find the optimal allocation. In general, we recommend
+    mode is slower, but it satisfy stronger optimality conditions. It will find strategies
+    at least as good as `"fast"`, but not guaranteed to be better. In general, we recommend
     exploring config options using `"fast"` mode first, and then using `"optimal"`
-    mode to find the optimal allocation. By default, `"fast"`
+    mode to find the optimal allocation. By default, `"optimal"`
+- `protocol_network::String`: Defines the protocol network that allocation transactions 
+    should be sent to. The current protocol network options are "mainnet", "goerli", 
+    "arbitrum", and "arbitrum-goerli". By default, `"mainnet"`
+- `syncing_networks::Vector{String}`: The list of syncing networks to support when selecting 
+    the set of possible subgraphs. This list should match the networks available to your 
+    graph-node. By default, the list is a singleton of your protocol network
 
 ### Example Configurations
 
@@ -96,11 +105,13 @@ frozenlist = []
 pinnedlist = []
 allocation_lifetime = 28
 gas = 100
-min_signal = 1000
+min_signal = 100
 verbose = true
 num_reported_options = 2
 execution_mode = "actionqueue"
 indexer_url = "https://localhost:8000"
+protocol_network = "arbitrum"
+syncing_network = ["mainnet"]
 ```
 
 #### Indexer Rules
@@ -118,7 +129,7 @@ frozenlist = []
 pinnedlist = []
 allocation_lifetime = 28
 gas = 100
-min_signal = 1000
+min_signal = 100
 verbose = true
 num_reported_options = 2
 execution_mode = "rules"
@@ -138,7 +149,7 @@ frozenlist = []
 pinnedlist = []
 allocation_lifetime = 28
 gas = 100
-min_signal = 1000
+min_signal = 100
 verbose = true
 num_reported_options = 2
 execution_mode = "none"
@@ -173,7 +184,7 @@ frozenlist = []
 pinnedlist = []
 allocation_lifetime = 28
 gas = 100
-min_signal = 1000
+min_signal = 100
 verbose = false
 num_reported_options = 2
 execution_mode = "none"
@@ -202,7 +213,7 @@ frozenlist = []
 pinnedlist = []
 allocation_lifetime = 28
 gas = 100
-min_signal = 1000
+min_signal = 100
 verbose = false
 num_reported_options = 2
 execution_mode = "none"

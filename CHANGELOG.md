@@ -1,5 +1,35 @@
 # Changelog
 
+## [2.5.1](https://github.com/graphprotocol/allocation-optimizer/compare/v2.5.0...v2.5.1) (2024-01-25)
+
+
+### Bug Fixes
+
+* network subgraph FDS schema update ([2556c59](https://github.com/graphprotocol/allocation-optimizer/commit/2556c59342ebc0df353a14d5366336fb4227b9f3))
+
+# [2.5.0](https://github.com/graphprotocol/allocation-optimizer/compare/v2.4.2...v2.5.0) (2023-09-27)
+
+
+### Features
+
+* support protocol_network config to actionqueue ([bba8173](https://github.com/graphprotocol/allocation-optimizer/commit/bba81730ba9d5eaaa8c6e7eda9fba8ba4e0dbd4d))
+* support syncing_network filter in subgraph selection ([09a3b38](https://github.com/graphprotocol/allocation-optimizer/commit/09a3b3861c77c6b0448f70a9473a856e7036b698))
+
+## [2.4.2](https://github.com/graphprotocol/allocation-optimizer/compare/v2.4.1...v2.4.2) (2023-09-07)
+
+
+### Bug Fixes
+
+* allow no current allocations ([4438cf5](https://github.com/graphprotocol/allocation-optimizer/commit/4438cf56851d9a4e154a60013e12b89b128bd644))
+* N/A options for some k less than max_allocations ([8e4f8a0](https://github.com/graphprotocol/allocation-optimizer/commit/8e4f8a0b87a67ac115879b04d5f63d0912c4ed79))
+
+## [2.4.1](https://github.com/graphprotocol/allocation-optimizer/compare/v2.4.0...v2.4.1) (2023-09-05)
+
+
+### Bug Fixes
+
+* linear indexing reward for network token issuance ([85d5ac7](https://github.com/graphprotocol/allocation-optimizer/commit/85d5ac7c50e66b98192c69e5e5e2a195cdc6a7af))
+
 # [2.4.0](https://github.com/graphprotocol/allocation-optimizer/compare/v2.3.1...v2.4.0) (2023-05-11)
 
 

@@ -3,10 +3,13 @@
 
 @testset "data" begin
     @testset "squery" begin
-        v, a, f = AllocationOpt.squery()
+        config = Dict("syncing_networks" => ["mainnet"])
+        v, a, f = AllocationOpt.squery(config)
         @test v == "subgraphDeployments"
         @test f == ["ipfsHash", "signalledTokens", "stakedTokens", "deniedAt"]
-        @test a == Dict{String,Union{Dict{String,String},String}}()
+        @test a == Dict{String,Union{Dict{String,Dict{String,Vector{String}}},String}}(
+            "where" => Dict("manifest_" => Dict("network_in" => ["mainnet"]))
+        )
     end
 
     @testset "iquery" begin
@@ -32,8 +35,7 @@
         @test v == "graphNetwork"
         @test f == [
             "id",
-            "totalSupply",
-            "networkGRTIssuance",
+            "networkGRTIssuancePerBlock",
             "epochLength",
             "totalTokensSignalled",
             "currentEpoch",
@@ -68,9 +70,24 @@
 
         @testset "subgraph" begin
             s = flextable([
-                Dict("stakedTokens" => "1", "signalledTokens" => "0", "ipfsHash" => "Qma", "deniedAt" => 0),
-                Dict("stakedTokens" => "2", "signalledTokens" => "0", "ipfsHash" => "Qmb", "deniedAt" => 0),
-                Dict("stakedTokens" => "3", "signalledTokens" => "0", "ipfsHash" => "Qmc", "deniedAt" => 0)
+                Dict(
+                    "stakedTokens" => "1",
+                    "signalledTokens" => "0",
+                    "ipfsHash" => "Qma",
+                    "deniedAt" => 0,
+                ),
+                Dict(
+                    "stakedTokens" => "2",
+                    "signalledTokens" => "0",
+                    "ipfsHash" => "Qmb",
+                    "deniedAt" => 0,
+                ),
+                Dict(
+                    "stakedTokens" => "3",
+                    "signalledTokens" => "0",
+                    "ipfsHash" => "Qmc",
+                    "deniedAt" => 0,
+                ),
             ])
             AllocationOpt.correcttypes!(Val(:subgraph), s)
             @test s.stakedTokens == [1e-18, 2e-18, 3e-18]
@@ -108,18 +125,16 @@
                 Dict(
                     "totalTokensSignalled" => "100",
                     "currentEpoch" => 1,
-                    "totalSupply" => "100",
                     "id" => "1",
-                    "networkGRTIssuance" => "100",
+                    "networkGRTIssuancePerBlock" => "100",
                     "epochLength" => 1,
                 ),
             ])
             AllocationOpt.correcttypes!(Val(:network), n)
             @test n.totalTokensSignalled == [1e-16]
             @test n.currentEpoch == [1]
-            @test n.totalSupply == [1e-16]
             @test n.id == ["1"]
-            @test n.networkGRTIssuance == [1e-16]
+            @test n.networkGRTIssuancePerBlock == [1e-16]
             @test n.epochLength == [1]
         end
 
@@ -128,9 +143,24 @@
                 Dict("stakedTokens" => "1", "delegatedTokens" => "0", "lockedTokens" => "0")
             ])
             s = flextable([
-                Dict("stakedTokens" => "1", "signalledTokens" => "0", "ipfsHash" => "Qma", "deniedAt" => 0),
-                Dict("stakedTokens" => "2", "signalledTokens" => "0", "ipfsHash" => "Qmb", "deniedAt" => 0),
-                Dict("stakedTokens" => "3", "signalledTokens" => "0", "ipfsHash" => "Qmc", "deniedAt" => 0)
+                Dict(
+                    "stakedTokens" => "1",
+                    "signalledTokens" => "0",
+                    "ipfsHash" => "Qma",
+                    "deniedAt" => 0,
+                ),
+                Dict(
+                    "stakedTokens" => "2",
+                    "signalledTokens" => "0",
+                    "ipfsHash" => "Qmb",
+                    "deniedAt" => 0,
+                ),
+                Dict(
+                    "stakedTokens" => "3",
+                    "signalledTokens" => "0",
+                    "ipfsHash" => "Qmc",
+                    "deniedAt" => 0,
+                ),
             ])
             a = flextable([
                 Dict(
@@ -153,9 +183,8 @@
                 Dict(
                     "totalTokensSignalled" => "100",
                     "currentEpoch" => 1,
-                    "totalSupply" => "100",
                     "id" => "1",
-                    "networkGRTIssuance" => "100",
+                    "networkGRTIssuancePerBlock" => "100",
                     "epochLength" => 1,
                 ),
             ])
@@ -172,9 +201,8 @@
                 ["Qma", "Qmb", "Qmc"]
             @test n.totalTokensSignalled == [1e-16]
             @test n.currentEpoch == [1]
-            @test n.totalSupply == [1e-16]
             @test n.id == ["1"]
-            @test n.networkGRTIssuance == [1e-16]
+            @test n.networkGRTIssuancePerBlock == [1e-16]
             @test n.epochLength == [1]
         end
     end
@@ -199,6 +227,7 @@
                 "verbose" => false,
                 "network_subgraph_endpoint" => "https://api.thegraph.com/subgraphs/name/graphprotocol/graph-network-mainnet",
                 "readdir" => nothing,
+                "syncing_networks" => ["mainnet"],
             )
             apply(paginated_query_success_patch) do
                 apply(query_success_patch) do

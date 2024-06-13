@@ -12,8 +12,18 @@ paginated_query_success_patch = @patch function paginated_query(v, a, f)
     if v == "subgraphDeployments"
         @info "paginated query stub ==> simulating subgraphs"
         return [
-            Dict("ipfsHash" => "Qma", "signalledTokens" => "1", "stakedTokens" => "1", "deniedAt" => 0),
-            Dict("ipfsHash" => "Qmb", "signalledTokens" => "2", "stakedTokens" => "2", "deniedAt" => 0),
+            Dict(
+                "ipfsHash" => "Qma",
+                "signalledTokens" => "1",
+                "stakedTokens" => "1",
+                "deniedAt" => 0,
+            ),
+            Dict(
+                "ipfsHash" => "Qmb",
+                "signalledTokens" => "2",
+                "stakedTokens" => "2",
+                "deniedAt" => 0,
+            ),
         ]
     end
     if v == "allocations"
@@ -41,9 +51,8 @@ query_success_patch = @patch function query(v, a, f)
             Dict(
                 "totalTokensSignalled" => "100",
                 "currentEpoch" => 1,
-                "totalSupply" => "100",
                 "id" => "1",
-                "networkGRTIssuance" => "100",
+                "networkGRTIssuancePerBlock" => "100",
                 "epochLength" => 1,
             ),
         ]
